@@ -1,0 +1,21 @@
+\documentclass{article}
+
+\begin{document}
+
+<<>>=
+require(plm)
+summary(fixed.foia <- plm(cocscore ~ foia + gdppc + education + competitiveness + trade + urban,
+                      data = euro, index = c('country','year'), model='within'))
+
+summary(fixed.aca <- plm(cocscore ~ aca_pres + gdppc + education + competitiveness + trade + urban,
+                          data = euro, index = c('country','year'), model='within'))
+
+
+
+
+
+@
+
+
+
+\end{document}

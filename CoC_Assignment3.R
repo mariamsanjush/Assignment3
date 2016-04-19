@@ -131,3 +131,104 @@ finaldata <- rename  (finaldata,
 
 # Create a csv file with the final version of the data
 write.csv(finaldata, file="WGI_WDI_data.csv")
+
+
+# cocscore is character and includes "ERROR" and "Estimate" strings, must be numeric
+finaldata[,"cocscore"] <- as.numeric(gsub("ERROR|Estimate", "", finaldata[,"cocscore"]))
+
+# subset EU28 countries
+euro.states <- c("AT","BE","BG","HR",
+                 "CY","DK","EE",
+                 "FI","FR","DE",
+                 "GR","HU","MT",
+                 "IE","IT",
+                 "LV","LT","LU",
+                 "NL","CZ",
+                 "PL","PT","RO",
+                 "SK", "SI",
+                 "ES","SE","GB")
+euro.states2 <- c("AUT","BEL","BGR","HRV",
+                 "CYP","DNK","EST",
+                 "FIN","FRA","DEU",
+                 "GRC","HUN","MLT",
+                 "IRL","ITA",
+                 "LVA","LTU","LUX",
+                 "NLD","CZE",
+                 "POL","PRT","ROM",
+                 "SVK", "SVN",
+                 "ESP","SWE","GBR")
+euro.id <- cbind(iso2c = euro.states, ifs = euro.states2)
+# subset EU28 countries from whole sample
+euro <- finaldata[which(finaldata$iso2c %in% euro.states),]
+
+euro <- merge(euro, euro.id, by = "iso2c", all = TRUE)
+
+euro$foia <- 0
+euro$year <- as.numeric(euro$year) 
+euro$foia[euro$country == "Ireland" & euro$year >= 1998] <- 1
+euro$foia[euro$country == "Latvia" & euro$year >= 1998] <- 1
+euro$foia[euro$country == "Lithuania" & euro$year >= 2000] <- 1
+euro$foia[euro$country == "Estonia" & euro$year >= 2001] <- 1
+euro$foia[euro$country == "Romania" & euro$year >= 2001] <- 1
+euro$foia[euro$country == "Slovakia" & euro$year >= 2001] <- 1
+euro$foia[euro$country == "Poland" & euro$year >= 2002] <- 1
+euro$foia[euro$country == "Croatia" & euro$year >= 2003] <- 1
+euro$foia[euro$country == "Slovenia" & euro$year >= 2003] <- 1
+euro$foia[euro$country == "United Kingdom" & euro$year >= 2005] <- 1
+euro$foia[euro$country == "Germany" & euro$year >= 2006] <- 1
+
+euro$aca_pres <- 0 # generate dummy with 0 for all
+
+euro$aca_pres[euro$country == "Austria" & euro$year >= 2010] <- 1 # replace 0 with 1 for these countries and years
+euro$aca_pres[euro$country == "Belgium" & euro$year >= 2001] <- 1
+euro$aca_pres[euro$country == "Bulgaria" & euro$year >= 2008] <- 1
+euro$aca_pres[euro$country == "Spain" & euro$year >= 1995] <- 1
+euro$aca_pres[euro$country == "Estonia" & euro$year >= 1999] <- 1
+euro$aca_pres[euro$country == "France" & euro$year >= 1993] <- 1
+euro$aca_pres[euro$country == "United Kingdom" & euro$year >= 1987] <- 1
+euro$aca_pres[euro$country == "Hungary" & euro$year >= 1994] <- 1
+euro$aca_pres[euro$country == "Italy" & euro$year >= 2008] <- 1
+euro$aca_pres[euro$country == "Lithuania" & euro$year >= 2000] <- 1
+euro$aca_pres[euro$country == "Latvia" & euro$year >= 2002] <- 1
+euro$aca_pres[euro$country == "Malta" & euro$year >= 1988] <- 1
+euro$aca_pres[euro$country == "Poland" & euro$year >= 2006] <- 1
+euro$aca_pres[euro$country == "Portugal" & euro$year >= 2000] <- 1
+euro$aca_pres[euro$country == "Romania" & euro$year >= 2002] <- 1
+euro$aca_pres[euro$country == "Slovakia" & euro$year >= 2004] <- 1
+euro$aca_pres[euro$country == "Slovenia" & euro$year >= 2004] <- 1
+euro$aca_pres[euro$country == "Sweden" & euro$year >= 2003] <- 1
+
+
+# descriptives for EU28 countries
+
+
+# generate first line plot for EU28 for 2002-2014
+library(ggplot2)
+plot1 = ggplot(euro) # generate ggplot with data = EU28 starting in 2002
+plot1 = plot1 + geom_line(aes(x = year, y = cocscore, group = factor(country) # add layer to plot
+        )) # layer = line plot over year for cocscore
+plot1 = plot1 + facet_wrap(~ country) # gives each country its own frame
+plot1 = plot1 + theme(legend.position = "none") # removes super bulky plot legend
+plot1 = plot1 + theme_bw() # turns graph into black and white scheme
+plot1 = plot1 + xlab("Year") + ylab("COC Score") # adds axis label
+plot1 # prints the plot
+
+
+
+require(stargazer)
+stargazer(euro, type = "html")
+
+xtable(euro)
+
+
+# Analysis
+
+# fixed effects panel analysis
+require(plm)
+summary(fixed.foia <- plm(cocscore ~ foia + gdppc + education + competitiveness + trade + urban,
+                      data = euro, index = c('country','year'), model='within'))
+
+summary(fixed.aca <- plm(cocscore ~ aca_pres + gdppc + education + competitiveness + trade + urban,
+                          data = euro, index = c('country','year'), model='within'))
+
+stargazer(fixed.foia, fixed.aca)

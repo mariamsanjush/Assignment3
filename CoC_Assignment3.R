@@ -1,7 +1,7 @@
 #####################################
 # Corruption and Accountability Mechanisms - 
 # by Roberto Mart??nez B. Kukutschka and Mariam Sanjush
-# Due date: 15.04.2016
+# Due date: 19.04.2016
 #####################################
 # 1. Set working directory for our two computers (so that the code runs on either of them)
 getwd()
@@ -215,8 +215,9 @@ plot1 # prints the plot
 
 
 
+
 require(stargazer)
-stargazer(euro, type = "html")
+stargazer(euro)
 
 xtable(euro)
 

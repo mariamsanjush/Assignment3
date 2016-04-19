@@ -24,6 +24,7 @@ library(WDI)
 library(xlsxjars)
 library(ggplot2)
 library(zoo)
+library(rworldmap)
 
 #####################################
 # SECTION I: COLLLECTING DATA 
@@ -198,9 +199,20 @@ euro$aca_pres[euro$country == "Slovakia" & euro$year >= 2004] <- 1
 euro$aca_pres[euro$country == "Slovenia" & euro$year >= 2004] <- 1
 euro$aca_pres[euro$country == "Sweden" & euro$year >= 2003] <- 1
 
+#####################################
+# SECTION II: DESCRIPTIVES
+#####################################
+# Create map to show distribution of dependent variable
 
-# descriptives for EU28 countries
+map1 <- {world_corruption <- joinCountryData2Map(finaldata
+                                                 ,joinCode = "ISO2"
+                                                 ,nameJoinColumn = "iso2c"
+                                                 ,mapResolution = 'coarse'
+                                                 ,verbose = FALSE)
 
+colorpalette <- brewer.pal(7,'Blues')
+world_gov <- mapCountryData(world_corruption, nameColumnToPlot='cocscore', missingCountryCol='grey', addLegend= 'FALSE', mapTitle= '',
+                            colourPalette = colorpalette)}
 
 # generate first line plot for EU28 for 2002-2014
 library(ggplot2)
@@ -222,7 +234,9 @@ stargazer(euro)
 xtable(euro)
 
 
-# Analysis
+#####################################
+# SECTION III: INFERENTIAL ANALYSIS
+#####################################
 
 # fixed effects panel analysis
 require(plm)

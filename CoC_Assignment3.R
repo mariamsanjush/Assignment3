@@ -5,7 +5,7 @@
 #####################################
 # 1. Set working directory for our two computers (so that the code runs on either of them)
 getwd()
-try(setwd("~/Documents/Assignment1/"), silent = TRUE)
+
   
 # 2. Load libraries
 library(httr)
@@ -25,6 +25,7 @@ library(xlsxjars)
 library(ggplot2)
 library(zoo)
 library(rworldmap)
+library(googleVis)
 
 #####################################
 # SECTION I: COLLLECTING DATA 
@@ -137,6 +138,9 @@ write.csv(finaldata, file="WGI_WDI_data.csv")
 # cocscore is character and includes "ERROR" and "Estimate" strings, must be numeric
 finaldata[,"cocscore"] <- as.numeric(gsub("ERROR|Estimate", "", finaldata[,"cocscore"]))
 
+# Import collected data on Accountability Mechanisms from .csv file
+actools<-read.csv(file ="AccountabilityMechanisms.csv",sep = ",",header = TRUE)
+
 # subset EU28 countries
 euro.states <- c("AT","BE","BG","HR",
                  "CY","DK","EE",
@@ -210,9 +214,27 @@ map1 <- {world_corruption <- joinCountryData2Map(finaldata
                                                  ,mapResolution = 'coarse'
                                                  ,verbose = FALSE)
 
-colorpalette <- brewer.pal(7,'Blues')
+colorpalette <- brewer.pal(9,'Blues')
 world_gov <- mapCountryData(world_corruption, nameColumnToPlot='cocscore', missingCountryCol='grey', addLegend= 'FALSE', mapTitle= '',
                             colourPalette = colorpalette)}
+
+
+map2 <- gvisGeoChart(cc, locationvar="country", 
+                 colorvar="estimate",
+                 options=list(projection="kavrayskiy-vii"))
+plot(map2)
+
+map3 <- gvisGeoChart(actools, locationvar="X", 
+                 colorvar="COI_2012",
+                 options=list(projection="kavrayskiy-vii", 
+                              region="150"))
+plot(map3)
+
+map4 <- gvisGeoChart(actools, locationvar="X", 
+                     colorvar="FD_2012",
+                     options=list(projection="kavrayskiy-vii", 
+                                  region="150"))
+plot(map4)
 
 # generate first line plot for EU28 for 2002-2014
 library(ggplot2)

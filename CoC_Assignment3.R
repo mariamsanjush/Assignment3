@@ -131,14 +131,17 @@ finaldata <- rename  (finaldata,
                 )
 
 # Create a csv file with the final version of the data
-write.csv(finaldata, file="WGI_WDI_data.csv")
-
-
-# cocscore is character and includes "ERROR" and "Estimate" strings, must be numeric
 finaldata[,"cocscore"] <- as.numeric(gsub("ERROR|Estimate", "", finaldata[,"cocscore"]))
+write.csv(finaldata, file="WGI_WDI_data.csv")# cocscore is character and includes "ERROR" and "Estimate" strings, must be numeric
 
 # Import collected data on Accountability Mechanisms from .csv file
 actools<-read.csv(file ="AccountabilityMechanisms.csv",sep = ",",header = TRUE)
+agencies<-read.csv(file="AntiCorruptionData.csv",sep =",", header = TRUE)
+
+#Creating a single database with all gathered data
+fulldatabase<- read.csv("WGI_WDI_data.csv", sep =",", header = TRUE)
+fulldatabase<- merge(fulldatabase,agencies,by=c("CodeYear"))
+write.csv(fulldatabase,file="MergedDataFinal.csv")
 
 # subset EU28 countries
 euro.states <- c("AT","BE","BG","HR",
@@ -162,6 +165,8 @@ euro.states2 <- c("AUT","BEL","BGR","HRV",
                  "SVK", "SVN",
                  "ESP","SWE","GBR")
 euro.id <- cbind(iso2c = euro.states, ifs = euro.states2)
+
+
 # subset EU28 countries from whole sample
 euro <- finaldata[which(finaldata$iso2c %in% euro.states),]
 
@@ -217,7 +222,7 @@ plot(map1)
 #Map for presence of anti-corruption agencies
 aca2010<-read.csv(file ="aca2010.csv",sep = ",",header = TRUE)
 
-map2 <- gvisGeoChart(aca2010, locationvar="Country", 
+map2 <- gvisGeoChart(fulldatabase, locationvar="Country", 
                      colorvar="aca_yrsince",
                      options=list(projection="kavrayskiy-vii",
                                   colorAxis="{colors:['#FC8D59']}",
@@ -282,3 +287,4 @@ summary(fixed.aca <- plm(cocscore ~ aca_pres + gdppc + education + competitivene
                           data = euro, index = c('country','year'), model='within'))
 
 stargazer(fixed.foia, fixed.aca)
+

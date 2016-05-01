@@ -210,31 +210,33 @@ euro$aca_pres[euro$country == "Sweden" & euro$year >= 2003] <- 1
 #Plotting Control of Corruption
 map1 <- gvisGeoChart(cc, locationvar="country", 
                  colorvar="estimate",
-                 options=list(projection="kavrayskiy-vii"))
+                 options=list(projection="kavrayskiy-vii",
+                              region=150))
 plot(map1)
 
 #Map for presence of anti-corruption agencies
 aca2010<-read.csv(file ="aca2010.csv",sep = ",",header = TRUE)
-write.csv(aca2010, file="aca2010.csv")
 
-acaData <- subset(aca2010, aca_pres>0)
-map2 <- gvisGeoChart(acaData, locationvar="Country", 
-                     colorvar="aca_pres",
-                     options=list(projection="kavrayskiy-vii"))
+map2 <- gvisGeoChart(aca2010, locationvar="Country", 
+                     colorvar="aca_yrsince",
+                     options=list(projection="kavrayskiy-vii",
+                                  colorAxis="{colors:['#FC8D59']}",
+                                  region=150))
 plot(map2)
 
 #Map for FOIA laws
-foiaData <- subset(aca2010, foia_pres>0 & foia_yrssince>0)
-map3 <- gvisGeoChart(foiaData, locationvar="Country", 
-                     colorvar="foia_pres",
-                     options=list(projection="kavrayskiy-vii"))
+map3 <- gvisGeoChart(aca2010, locationvar="Country", 
+                     colorvar="foia_yrssince",
+                     options=list(projection="kavrayskiy-vii",
+                                  colorAxis="{colors:['#91BFDB']}",
+                                  region=150))
 plot(map3)
 
 # Map for Conflict of Interest Regulation
 map4 <- gvisGeoChart(actools, locationvar="X", 
                  colorvar="COI_2012",
                  options=list(projection="kavrayskiy-vii", 
-                              region="150"))
+                              region=150))
 plot(map4)
 
 #Map Financial Disclosure
@@ -244,6 +246,9 @@ map5 <- gvisGeoChart(actools, locationvar="X",
                                   region="150"))
 plot(map5)
 
+#Scatterplots
+plot(wt, mpg, main="Scatterplot Example", 
+     xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
 
 # generate first line plot for EU28 for 2002-2014
 plot1 = ggplot(euro) # generate ggplot with data = EU28 starting in 2002

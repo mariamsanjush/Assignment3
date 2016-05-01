@@ -6,7 +6,24 @@ output: beamer_presentation
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+library(httr)
+library(plyr)
+library(xlsx)
+library(rio)
+library(stargazer)
+library(Zelig)
+library(repmis)
+library(plm)
+library(tidyr)
+library(countrycode)
+library(dplyr)
+library(Hmisc)
+library(WDI)
+library(xlsxjars)
+library(ggplot2)
+library(zoo)
+library(rworldmap)
+library(googleVis)
 ```
 
 ## Theory

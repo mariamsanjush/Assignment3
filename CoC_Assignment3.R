@@ -6,7 +6,6 @@
 # 1. Set working directory for our two computers (so that the code runs on either of them)
 getwd()
 
-  
 # 2. Load libraries
 library(httr)
 library(plyr)
@@ -206,38 +205,47 @@ euro$aca_pres[euro$country == "Sweden" & euro$year >= 2003] <- 1
 #####################################
 # SECTION II: DESCRIPTIVES
 #####################################
-# Create map to show distribution of dependent variable
+# Create maps to show distribution of dependent and main independent variables
 
-map1 <- {world_corruption <- joinCountryData2Map(finaldata
-                                                 ,joinCode = "ISO2"
-                                                 ,nameJoinColumn = "iso2c"
-                                                 ,mapResolution = 'coarse'
-                                                 ,verbose = FALSE)
-
-colorpalette <- brewer.pal(9,'Blues')
-world_gov <- mapCountryData(world_corruption, nameColumnToPlot='cocscore', missingCountryCol='grey', addLegend= 'FALSE', mapTitle= '',
-                            colourPalette = colorpalette)}
-
-
-map2 <- gvisGeoChart(cc, locationvar="country", 
+#Plotting Control of Corruption
+map1 <- gvisGeoChart(cc, locationvar="country", 
                  colorvar="estimate",
                  options=list(projection="kavrayskiy-vii"))
+plot(map1)
+
+#Map for presence of anti-corruption agencies
+aca2010<-read.csv(file ="aca2010.csv",sep = ",",header = TRUE)
+write.csv(aca2010, file="aca2010.csv")
+
+acaData <- subset(aca2010, aca_pres>0)
+map2 <- gvisGeoChart(acaData, locationvar="Country", 
+                     colorvar="aca_pres",
+                     options=list(projection="kavrayskiy-vii"))
 plot(map2)
 
-map3 <- gvisGeoChart(actools, locationvar="X", 
+#Map for FOIA laws
+foiaData <- subset(aca2010, foia_pres>0 & foia_yrssince>0)
+map3 <- gvisGeoChart(foiaData, locationvar="Country", 
+                     colorvar="foia_pres",
+                     options=list(projection="kavrayskiy-vii"))
+plot(map3)
+
+# Map for Conflict of Interest Regulation
+map4 <- gvisGeoChart(actools, locationvar="X", 
                  colorvar="COI_2012",
                  options=list(projection="kavrayskiy-vii", 
                               region="150"))
-plot(map3)
+plot(map4)
 
-map4 <- gvisGeoChart(actools, locationvar="X", 
+#Map Financial Disclosure
+map5 <- gvisGeoChart(actools, locationvar="X", 
                      colorvar="FD_2012",
                      options=list(projection="kavrayskiy-vii", 
                                   region="150"))
-plot(map4)
+plot(map5)
+
 
 # generate first line plot for EU28 for 2002-2014
-library(ggplot2)
 plot1 = ggplot(euro) # generate ggplot with data = EU28 starting in 2002
 plot1 = plot1 + geom_line(aes(x = year, y = cocscore, group = factor(country) # add layer to plot
         )) # layer = line plot over year for cocscore
